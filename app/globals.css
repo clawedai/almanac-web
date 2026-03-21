@@ -1,0 +1,559 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================================
+   ALMANAC LANDING — exact reference design
+   ============================================================ */
+.almanac-root {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F4F4F5;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Floating ambient orbs */
+.almanac-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+  z-index: 0;
+}
+.almanac-orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+  top: -100px; left: -150px;
+  animation: orbFloat 10s ease-in-out infinite;
+}
+.almanac-orb-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
+  top: 50px; right: -100px;
+  animation: orbFloat 12s ease-in-out infinite reverse;
+}
+.almanac-orb-3 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(196, 181, 253, 0.2) 0%, transparent 70%);
+  bottom: 0; left: 20%;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.almanac-orb-4 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, transparent 70%);
+  bottom: 100px; right: 10%;
+  animation: orbFloat 14s ease-in-out infinite reverse;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  33% { transform: translateY(-30px) scale(1.05); }
+  66% { transform: translateY(20px) scale(0.97); }
+}
+
+/* Hero content — fully centered */
+.almanac-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+/* Label above title */
+.almanac-label {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-weight: 500;
+  color: #6B7280;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+/* Main title — MASSIVE ultra-bold, purple gradient */
+.almanac-title {
+  font-size: clamp(5rem, 20vw, 14rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  background: linear-gradient(135deg, #7C3AED 0%, #A855F7 40%, #6D28D9 70%, #4C1D95 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Subtitle — black */
+.almanac-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+  color: #1C1C1E;
+  letter-spacing: 0.06em;
+  margin-top: 0.75rem;
+}
+
+/* Description text */
+.almanac-desc {
+  font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+  color: #6B7280;
+  line-height: 1.8;
+  margin-top: 1.5rem;
+  max-width: 500px;
+}
+
+/* Interest-building Banner */
+.almanac-banner {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 2.5rem;
+  padding: 2.25rem 2.75rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(16px);
+  animation: bannerPulse 4s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+  50% { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0.04); }
+}
+
+.almanac-banner-inner { text-align: center; }
+
+.almanac-banner-headline {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 800;
+  color: #1C1C1E;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+
+.almanac-banner-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7C3AED;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.almanac-banner-body {
+  font-size: 0.9rem;
+  color: #4B5563;
+  line-height: 1.75;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* CTA Button group */
+.almanac-btn-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* CTA label text above buttons */
+.almanac-cta-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7C3AED;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+/* CTA Button — full pill, deep purple */
+.almanac-btn {
+  display: inline-block;
+  padding: 1.1rem 3rem;
+  background-color: #6D28D9;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow:
+    0 0 30px rgba(109, 40, 217, 0.45),
+    0 0 80px rgba(109, 40, 217, 0.2),
+    0 0 120px rgba(109, 40, 217, 0.1),
+    0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.almanac-btn:hover {
+  background-color: #5B21B6;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow:
+    0 0 50px rgba(109, 40, 217, 0.6),
+    0 0 100px rgba(109, 40, 217, 0.3),
+    0 0 160px rgba(109, 40, 217, 0.15),
+    0 8px 32px rgba(109, 40, 217, 0.3);
+}
+.almanac-btn:active { transform: translateY(0) scale(1.02); }
+
+/* Secondary CTA Button — outlined */
+.almanac-btn-secondary {
+  display: inline-block;
+  padding: 1.1rem 3rem;
+  background-color: transparent;
+  color: #6D28D9;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  border: 2px solid #6D28D9;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.almanac-btn-secondary:hover {
+  background-color: rgba(109, 40, 217, 0.06);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 20px rgba(109, 40, 217, 0.15);
+}
+.almanac-btn-secondary:active { transform: translateY(0) scale(1.02); }
+
+/* Footer */
+.almanac-footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.75rem;
+  color: #9CA3AF;
+}
+
+/* ============================================================
+   BOOK PAGE FORM
+   ============================================================ */
+.almanac-book-inner {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+.almanac-back {
+  display: inline-block;
+  font-size: 0.875rem;
+  color: #6B7280;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  transition: color 200ms;
+}
+.almanac-back:hover { color: #7C3AED; }
+.almanac-book-title {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 800;
+  color: #1C1C1E;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+.almanac-book-desc {
+  font-size: 1rem;
+  color: #6B7280;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+.book-form { max-width: 480px; margin: 0 auto; }
+.book-field { margin-bottom: 1.25rem; }
+.book-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+  text-align: left;
+}
+.book-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  color: #1C1C1E;
+  outline: none;
+  transition: border-color 200ms, box-shadow 200ms;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.book-input:focus {
+  border-color: #7C3AED;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.book-input::placeholder { color: #9CA3AF; }
+.book-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  color: #1C1C1E;
+  outline: none;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 200ms, box-shadow 200ms;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.book-textarea:focus {
+  border-color: #7C3AED;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.book-textarea::placeholder { color: #9CA3AF; }
+.book-submit {
+  width: 100%;
+  padding: 1rem;
+  background-color: #6D28D9;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow:
+    0 0 30px rgba(109, 40, 217, 0.45),
+    0 0 80px rgba(109, 40, 217, 0.2),
+    0 0 120px rgba(109, 40, 217, 0.1),
+    0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.book-submit:hover {
+  background-color: #5B21B6;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 0 50px rgba(109, 40, 217, 0.6),
+    0 0 100px rgba(109, 40, 217, 0.3),
+    0 0 160px rgba(109, 40, 217, 0.15),
+    0 8px 32px rgba(109, 40, 217, 0.3);
+}
+
+/* ============================================================
+   FEATURES PAGE
+   ============================================================ */
+.features-root {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+.features-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6B7280;
+  text-decoration: none;
+  margin-bottom: 2.5rem;
+  transition: color 200ms;
+}
+.features-back:hover { color: #7C3AED; }
+.features-header { text-align: center; margin-bottom: 3rem; }
+.features-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: #1C1C1E;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+.features-subtitle {
+  font-size: 1rem;
+  color: #6B7280;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.feature-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(124, 58, 237, 0.1);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  transition: all 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: cardFloat 7s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+}
+.feature-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(124, 58, 237, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(124, 58, 237, 0.1);
+  animation-play-state: paused;
+}
+.feature-card-1 { animation-delay: 0s; }
+.feature-card-2 { animation-delay: 1.5s; }
+.feature-card-3 { animation-delay: 3s; }
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.feature-card-inner { display: flex; flex-direction: column; height: 100%; }
+.feature-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.feature-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.feature-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 1rem;
+  background: rgba(124, 58, 237, 0.1);
+  color: #7C3AED;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 300ms;
+}
+.feature-card:hover .feature-icon {
+  background: rgba(124, 58, 237, 0.18);
+  transform: scale(1.08);
+}
+.feature-content { flex: 1; }
+.feature-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1C1C1E;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.2rem;
+}
+.feature-tagline {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7C3AED;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.02em;
+}
+.feature-desc {
+  font-size: 0.9rem;
+  color: #6B7280;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.feature-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.feature-bullets li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #4B5563;
+  font-weight: 500;
+}
+.feature-bullet-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #7C3AED;
+}
+.features-cta {
+  text-align: center;
+  margin-top: 3.5rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(124, 58, 237, 0.1);
+}
+.features-cta-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1C1C1E;
+  margin-bottom: 1.25rem;
+}
+.features-cta-btns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+@media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
+
+/* ============================================================
+   TOOLS / SANCTUM PAGE
+   ============================================================ */
+.tools-root {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  min-height: 100vh;
+  background-color: #F4F4F5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.tools-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 1.5rem;
+  background: rgba(124, 58, 237, 0.1);
+  color: #7C3AED;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+}
+.tools-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #6D28D9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+.tools-subtitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1C1C1E;
+  margin-bottom: 1rem;
+}
+.tools-desc {
+  font-size: 1rem;
+  color: #6B7280;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+.tools-cta { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
