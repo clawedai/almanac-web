@@ -163,6 +163,7 @@ export default function ProspectsPage() {
   }
 
   const isTracking = (p: Prospect) => p.linkedin_url || p.company_domain;
+  const formHasTracking = () => form.linkedin_url.trim() || form.company_domain.trim();
 
   return (
     <div>
@@ -286,7 +287,7 @@ export default function ProspectsPage() {
 
             <div style={{ display: "flex", gap: "8px" }}>
               <button type="submit" className="btn-primary" disabled={addLoading}>
-                {addLoading ? "Adding..." : hasTracking(form as any) ? "Add & start tracking" : "Add to pipeline"}
+                {addLoading ? "Adding..." : formHasTracking() ? "Add & start tracking" : "Add to pipeline"}
               </button>
               <button type="button" className="btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
             </div>
