@@ -1,0 +1,34 @@
+import { NextResponse } from "next/server";
+
+const API_URL = process.env.API_URL || "http://localhost:8003";
+
+export async function GET(request: Request) {
+  const cookie = request.headers.get("cookie") || "";
+  const match = cookie.match(/token=([^;]+)/);
+  const token = match ? match[1] : null;
+  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const tier = searchParams.get("tier") || "hot";
+
+    // Use the new proper endpoint: GET /prospects/hot?tier=hot
+    const response = await fetch(`${API_URL}/api/v1/prospects/hot?tier=${tier}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return NextResponse.json({ error: "Failed to fetch prospects" }, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
