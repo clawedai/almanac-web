@@ -13,26 +13,11 @@ export async function GET(request: Request) {
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { searchParams } = new URL(request.url);
-    const tier = searchParams.get("tier");
-
-    let url = `${API_URL}/api/v1/prospects`;
-    if (tier) url += `?tier=${tier}`;
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
+    const response = await fetch(`${API_URL}/api/v1/linkedin/status`, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     });
-
-    if (!response.ok) {
-      return NextResponse.json({ error: "Failed to fetch prospects" }, { status: response.status });
-    }
-
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, { status: response.status });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
@@ -44,22 +29,20 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const response = await fetch(`${API_URL}/api/v1/prospects`, {
+    const { _path, ...payload } = body as any;
+    const path = _path || "/api/v1/linkedin/login";
+
+    const response = await fetch(`${API_URL}${path}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return NextResponse.json({ error: err.detail || "Failed to create prospect" }, { status: response.status });
-    }
-
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, { status: response.status });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

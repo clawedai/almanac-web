@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_URL = process.env.API_URL || "http://localhost:8003";
+const API_URL = process.env.API_URL || "http://localhost:9001";
 
 export async function GET(request: Request) {
   const cookie = request.headers.get("cookie") || "";
