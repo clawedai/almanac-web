@@ -11,21 +11,21 @@ interface IntentScore {
 
 interface Prospect {
   id: string;
-  first_name: string;
   full_name: string;
+  first_name: string;
   company: string;
   title: string;
   email: string;
   phone: string;
   linkedin_url: string;
+  company_domain: string;
   prospect_type: string;
   notes: string;
   intent_score: IntentScore | null;
   created_at: string;
 }
 
-type Tier = "hot" | "warm" | "cold";
-type TabFilter = Tier | "all";
+type TabFilter = "all" | "hot" | "warm" | "cold";
 
 function getPill(label: string, value: number) {
   if (!value) return null;
@@ -46,12 +46,6 @@ function getPill(label: string, value: number) {
   );
 }
 
-function getTypeLabel(type: string) {
-  if (type === "client") return { label: "Client", color: "var(--accent)", bg: "rgba(217,164,70,0.12)" };
-  if (type === "competitor") return { label: "Competitor", color: "var(--ink-tertiary)", bg: "rgba(0,0,0,0.06)" };
-  return { label: "Prospect", color: "var(--ink-secondary)", bg: "transparent" };
-}
-
 export default function ProspectsPage() {
   const router = useRouter();
   const [filter, setFilter] = useState<TabFilter>("all");
@@ -59,17 +53,18 @@ export default function ProspectsPage() {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [addError, setAddError] = useState("");
+  const [addSuccess, setAddSuccess] = useState("");
 
-  // Form state
+  // Form state — minimal to add
   const [form, setForm] = useState({
     full_name: "",
     company: "",
     title: "",
     email: "",
     phone: "",
-    linkedin_url: "",
-    prospect_type: "prospect",
     notes: "",
+    linkedin_url: "",
+    company_domain: "",
   });
   const [addLoading, setAddLoading] = useState(false);
 
@@ -83,14 +78,12 @@ export default function ProspectsPage() {
       cache: "no-store",
     })
       .then((r) => r.ok ? r.json() : [])
-      .then((data) => {
-        setProspects(Array.isArray(data) ? data : []);
-      })
+      .then((data) => setProspects(Array.isArray(data) ? data : []))
       .catch(() => setProspects([]))
       .finally(() => setLoading(false));
   }, [router]);
 
-  function updateField(key: string, value: string) {
+  function setField(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
@@ -101,19 +94,22 @@ export default function ProspectsPage() {
 
     setAddLoading(true);
     setAddError("");
+    setAddSuccess("");
 
     const names = form.full_name.trim().split(" ");
+    const hasTracking = form.linkedin_url.trim() || form.company_domain.trim();
+
     const payload = {
       full_name: form.full_name,
       first_name: names[0] || form.full_name,
       last_name: names.length > 1 ? names.slice(1).join(" ") : "",
       company: form.company,
       title: form.title,
-      email: form.email,
-      phone: form.phone,
-      linkedin_url: form.linkedin_url,
-      prospect_type: form.prospect_type,
-      notes: form.notes,
+      email: form.email || null,
+      phone: form.phone || null,
+      linkedin_url: form.linkedin_url || null,
+      company_domain: form.company_domain || null,
+      notes: form.notes || null,
       source: "manual",
     };
 
@@ -128,17 +124,17 @@ export default function ProspectsPage() {
       });
 
       if (res.ok) {
-        const created = await res.json();
-        // Fetch fresh list
+        // Refresh list
         const refresh = await fetch("/api/prospects", {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });
-        if (refresh.ok) {
-          setProspects(await refresh.json());
-        }
-        setForm({ full_name: "", company: "", title: "", email: "", phone: "", linkedin_url: "", prospect_type: "prospect", notes: "" });
+        if (refresh.ok) setProspects(await refresh.json());
+
+        setForm({ full_name: "", company: "", title: "", email: "", phone: "", notes: "", linkedin_url: "", company_domain: "" });
         setShowAdd(false);
+        setAddSuccess("Added to pipeline!");
+        setTimeout(() => setAddSuccess(""), 3000);
       } else {
         const err = await res.json().catch(() => ({}));
         setAddError(err.error || "Failed to add. Try again.");
@@ -162,9 +158,11 @@ export default function ProspectsPage() {
     : prospects.filter((p) => p.intent_score?.tier === filter);
 
   const counts: Record<string, number> = { all: prospects.length };
-  for (const t of ["hot", "warm", "cold"] as Tier[]) {
+  for (const t of ["hot", "warm", "cold"] as TabFilter[]) {
     counts[t] = prospects.filter((p) => p.intent_score?.tier === t).length;
   }
+
+  const isTracking = (p: Prospect) => p.linkedin_url || p.company_domain;
 
   return (
     <div>
@@ -179,80 +177,106 @@ export default function ProspectsPage() {
         </button>
       </div>
 
-      {/* Add form */}
+      {/* Add form — minimal, split into Basic + Track */}
       {showAdd && (
         <div style={{
           background: "var(--surface-card)",
           border: "1px solid var(--border-default)",
           borderRadius: "var(--radius-lg)",
-          padding: "24px",
+          padding: "28px",
           marginBottom: "24px",
           boxShadow: "var(--shadow-card)",
         }}>
-          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.2rem", marginBottom: "16px", color: "var(--ink-primary)" }}>
-            Add to pipeline
-          </h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.2rem", margin: 0, color: "var(--ink-primary)" }}>
+              Add to pipeline
+            </h3>
+            {addSuccess && (
+              <span style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600 }}>{addSuccess}</span>
+            )}
+          </div>
+
           <form onSubmit={handleAdd}>
-            {/* Row 1: Name + Company + Type */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 140px", gap: "12px", marginBottom: "12px" }}>
-              <div className="form-field">
-                <label className="form-label">Full name *</label>
-                <input className="form-input" placeholder="Sarah Chen" value={form.full_name}
-                  onChange={(e) => updateField("full_name", e.target.value)} required />
+            {/* --- BASIC INFO --- */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--ink-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "10px" }}>
+                Who is this?
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                <div className="form-field" style={{ gridColumn: "1" }}>
+                  <label className="form-label">Full name *</label>
+                  <input className="form-input" placeholder="Sarah Chen"
+                    value={form.full_name} onChange={(e) => setField("full_name", e.target.value)} required />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Company</label>
+                  <input className="form-input" placeholder="TechFlow Inc"
+                    value={form.company} onChange={(e) => setField("company", e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Job title</label>
+                  <input className="form-input" placeholder="VP of Sales"
+                    value={form.title} onChange={(e) => setField("title", e.target.value)} />
+                </div>
               </div>
-              <div className="form-field">
-                <label className="form-label">Company</label>
-                <input className="form-input" placeholder="TechFlow Inc" value={form.company}
-                  onChange={(e) => updateField("company", e.target.value)} />
-              </div>
-              <div className="form-field">
-                <label className="form-label">Type</label>
-                <select className="form-input" value={form.prospect_type}
-                  onChange={(e) => updateField("prospect_type", e.target.value)}
-                  style={{ cursor: "pointer" }}>
-                  <option value="prospect">Prospect</option>
-                  <option value="client">Client</option>
-                  <option value="competitor">Competitor</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Row 2: Title + Email */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-              <div className="form-field">
-                <label className="form-label">Job title</label>
-                <input className="form-input" placeholder="VP of Sales" value={form.title}
-                  onChange={(e) => updateField("title", e.target.value)} />
-              </div>
-              <div className="form-field">
-                <label className="form-label">Email</label>
-                <input className="form-input" type="email" placeholder="sarah@techflow.io" value={form.email}
-                  onChange={(e) => updateField("email", e.target.value)} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div className="form-field">
+                  <label className="form-label">Email</label>
+                  <input className="form-input" type="email" placeholder="sarah@techflow.io"
+                    value={form.email} onChange={(e) => setField("email", e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Phone</label>
+                  <input className="form-input" placeholder="+1 415 555 0100"
+                    value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
+                </div>
               </div>
             </div>
 
-            {/* Row 3: Phone + LinkedIn */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-              <div className="form-field">
-                <label className="form-label">Phone</label>
-                <input className="form-input" placeholder="+1 415 555 0100" value={form.phone}
-                  onChange={(e) => updateField("phone", e.target.value)} />
+            {/* --- TRACKING --- */}
+            <div style={{ borderTop: "1px solid var(--border-default)", paddingTop: "20px", marginBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                <p style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--ink-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>
+                  Track signals
+                </p>
+                <span style={{ fontSize: "0.7rem", color: "var(--ink-muted)", background: "var(--surface-inset)", padding: "2px 8px", borderRadius: "20px" }}>
+                  Optional — provides URL to activate monitoring
+                </span>
               </div>
-              <div className="form-field">
-                <label className="form-label">LinkedIn URL</label>
-                <input className="form-input" placeholder="https://linkedin.com/in/sarahchen" value={form.linkedin_url}
-                  onChange={(e) => updateField("linkedin_url", e.target.value)} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div className="form-field">
+                  <label className="form-label">
+                    LinkedIn URL
+                    {form.linkedin_url && (
+                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "var(--accent)", fontWeight: 600 }}>Tracking active</span>
+                    )}
+                  </label>
+                  <input className="form-input" placeholder="https://linkedin.com/in/sarahchen"
+                    value={form.linkedin_url} onChange={(e) => setField("linkedin_url", e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">
+                    Company website
+                    {form.company_domain && (
+                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "var(--accent)", fontWeight: 600 }}>Tracking active</span>
+                    )}
+                  </label>
+                  <input className="form-input" placeholder="techflow.io"
+                    value={form.company_domain} onChange={(e) => setField("company_domain", e.target.value)} />
+                </div>
               </div>
+              <p style={{ fontSize: "0.78rem", color: "var(--ink-muted)", marginTop: "8px" }}>
+                When you provide a LinkedIn or company URL, we'll monitor for funding news, hiring activity, reviews, and social signals. Your pipeline will update automatically.
+              </p>
             </div>
 
-            {/* Row 4: Notes */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px", marginBottom: "16px" }}>
+            {/* --- NOTES --- */}
+            <div style={{ marginBottom: "20px" }}>
               <div className="form-field">
                 <label className="form-label">Notes</label>
                 <textarea className="form-input" placeholder="Met at SaaStr, interested in Q4 expansion..."
-                  value={form.notes} rows={2}
-                  style={{ resize: "vertical", fontFamily: "inherit" }}
-                  onChange={(e) => updateField("notes", e.target.value)} />
+                  value={form.notes} rows={2} style={{ resize: "vertical", fontFamily: "inherit" }}
+                  onChange={(e) => setField("notes", e.target.value)} />
               </div>
             </div>
 
@@ -262,11 +286,9 @@ export default function ProspectsPage() {
 
             <div style={{ display: "flex", gap: "8px" }}>
               <button type="submit" className="btn-primary" disabled={addLoading}>
-                {addLoading ? "Adding..." : "Add to pipeline"}
+                {addLoading ? "Adding..." : hasTracking(form as any) ? "Add & start tracking" : "Add to pipeline"}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setShowAdd(false)}>
-                Cancel
-              </button>
+              <button type="button" className="btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
             </div>
           </form>
         </div>
@@ -300,7 +322,7 @@ export default function ProspectsPage() {
             <path d="M16 20h16M16 26h10" />
           </svg>
           <div className="empty-state-title">
-            {filter === "all" ? "No people in pipeline yet" : `No ${filter} prospects`}
+            {filter === "all" ? "Your pipeline is empty" : `No ${filter} prospects`}
           </div>
           <div className="empty-state-desc">
             {filter === "all"
@@ -315,9 +337,9 @@ export default function ProspectsPage() {
         filtered.map((prospect) => {
           const name = prospect.full_name || prospect.first_name || "Unknown";
           const breakdown = prospect.intent_score?.score_breakdown || {};
-          const typeInfo = getTypeLabel(prospect.prospect_type);
           const score = prospect.intent_score?.score ?? 0;
           const tier = prospect.intent_score?.tier ?? "cold";
+          const tracking = isTracking(prospect);
 
           return (
             <div key={prospect.id} className="prospect-card">
@@ -325,18 +347,33 @@ export default function ProspectsPage() {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                     <div className="prospect-name">{name}</div>
-                    {prospect.prospect_type !== "prospect" && (
+                    {tracking && (
                       <span style={{
                         fontSize: "0.65rem",
                         fontWeight: 600,
-                        color: typeInfo.color,
-                        background: typeInfo.bg,
+                        color: "var(--accent)",
+                        background: "rgba(217,164,70,0.12)",
                         padding: "2px 7px",
                         borderRadius: "20px",
                         textTransform: "uppercase",
                         letterSpacing: "0.04em",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
                       }}>
-                        {typeInfo.label}
+                        <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+                        Tracking
+                      </span>
+                    )}
+                    {!tracking && (
+                      <span style={{
+                        fontSize: "0.65rem",
+                        color: "var(--ink-muted)",
+                        background: "rgba(0,0,0,0.05)",
+                        padding: "2px 7px",
+                        borderRadius: "20px",
+                      }}>
+                        Not tracked
                       </span>
                     )}
                   </div>
@@ -344,9 +381,7 @@ export default function ProspectsPage() {
                     {prospect.title && <span>{prospect.title} · </span>}
                     {prospect.company || <em style={{ color: "var(--ink-muted)" }}>No company</em>}
                     {prospect.email && (
-                      <span style={{ color: "var(--ink-muted)", fontSize: "0.8rem" }}>
-                        {" "}· {prospect.email}
-                      </span>
+                      <span style={{ color: "var(--ink-muted)", fontSize: "0.8rem" }}> · {prospect.email}</span>
                     )}
                   </div>
                   {prospect.notes && (
@@ -374,10 +409,21 @@ export default function ProspectsPage() {
               )}
 
               <div className="prospect-meta">
-                <span>
-                  Added {new Date(prospect.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  {prospect.phone && <span style={{ color: "var(--ink-muted)" }}> · {prospect.phone}</span>}
-                </span>
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "0.78rem", color: "var(--ink-tertiary)" }}>
+                    Added {new Date(prospect.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                  {prospect.linkedin_url && (
+                    <a href={prospect.linkedin_url} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: "0.78rem", color: "var(--accent)", display: "flex", alignItems: "center", gap: "3px" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                      LinkedIn
+                    </a>
+                  )}
+                  {prospect.phone && (
+                    <span style={{ fontSize: "0.78rem", color: "var(--ink-muted)" }}>{prospect.phone}</span>
+                  )}
+                </div>
                 <a href={`/prospects/${prospect.id}`} style={{ color: "var(--accent)", fontSize: "0.8rem", fontWeight: 600 }}>
                   View →
                 </a>
