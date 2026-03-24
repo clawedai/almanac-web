@@ -55,20 +55,20 @@ export default function BriefPage() {
       if (!token) { router.push("/login"); return; }
 
       try {
-        const [hotRes, warmRes] = await Promise.all([
-          fetch("/api/prospects/hot?tier=hot", {
-            headers: { Authorization: `Bearer ${token}` },
-            cache: "no-store",
-          }),
-          fetch("/api/prospects/hot?tier=warm", {
-            headers: { Authorization: `Bearer ${token}` },
-            cache: "no-store",
-          }),
-        ]);
+        // Fetch all prospects — backend joins intent_scores
+        const res = await fetch("/api/prospects", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
 
-        const [hotData, warmData] = await Promise.all([hotRes.json(), warmRes.json()]);
-        setHot(Array.isArray(hotData) ? hotData : []);
-        setWarm(Array.isArray(warmData) ? warmData : []);
+        if (res.ok) {
+          const all = Array.isArray(await res.json()) ? await res.json() : [];
+          setHot(all.filter((p: any) => p.intent_score?.tier === "hot"));
+          setWarm(all.filter((p: any) => p.intent_score?.tier === "warm"));
+        } else {
+          setHot([]);
+          setWarm([]);
+        }
       } catch {
         setHot([]);
         setWarm([]);
@@ -83,7 +83,8 @@ export default function BriefPage() {
   const greeting = getGreeting();
   const hotCount = hot.length;
   const warmCount = warm.length;
-  const hasProspects = hotCount > 0 || warmCount > 0;
+  const totalCount = hotCount + warmCount;
+  const hasProspects = totalCount > 0;
 
   if (loading) {
     return (
@@ -110,12 +111,14 @@ export default function BriefPage() {
           <p className="page-subtitle">
             {hotCount > 0 && `${hotCount} hot prospect${hotCount !== 1 ? "s" : ""}`}
             {hotCount > 0 && warmCount > 0 && " and "}
-            {warmCount > 0 && `${warmCount} to follow up`}
-            {" ready for you."}
+            {warmCount > 0 && `${warmCount} warm lead${warmCount !== 1 ? "s" : ""}`}
+            {totalCount > 0 && ` — ${totalCount} total in pipeline`}
           </p>
         ) : (
           <p className="page-subtitle">
-            Add your first prospects to see your morning brief.
+            {totalCount > 0
+              ? `${totalCount} people in pipeline — add LinkedIn or company URLs to activate tracking`
+              : "Add people to your pipeline to get started."}
           </p>
         )}
       </div>
