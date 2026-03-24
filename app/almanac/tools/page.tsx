@@ -15,7 +15,7 @@ export default function SanctumTools() {
         moves before they go public. No signals, no traces, just you and your intelligence.
       </p>
       <div className="tools-cta">
-        <Link href="/almanac/book" className="almanac-btn">Join the Waitlist</Link>
+        <Link href="/signup" className="almanac-btn">Get started free</Link>
         <Link href="/almanac" className="almanac-back" style={{ marginTop: "0.5rem" }}>
           &larr; Back to Almanac
         </Link>
