@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 const API_URL = process.env.API_URL || "http://localhost:9001";
 
 function getToken(request: Request): string | null {
+  const auth = request.headers.get("authorization") || "";
+  if (auth.startsWith("Bearer ")) return auth.slice(7);
   const cookie = request.headers.get("cookie") || "";
   const match = cookie.match(/token=([^;]+)/);
   return match ? match[1] : null;
