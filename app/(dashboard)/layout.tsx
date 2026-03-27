@@ -13,6 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [checking, setChecking] = useState(true);
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [linkedInStatus, setLinkedInStatus] = useState<LinkedInStatus | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const token = getToken();
@@ -70,6 +71,85 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="dashboard-shell">
+      {/* Mobile header */}
+      <header className="mobile-header">
+        <div className="mobile-header-logo">Almanac</div>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+          <AlertNotificationBell />
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {mobileNavOpen ? (
+                <>
+                  <line x1="4" y1="4" x2="16" y2="16" />
+                  <line x1="16" y1="4" x2="4" y2="16" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="17" y2="6" />
+                  <line x1="3" y1="10" x2="17" y2="10" />
+                  <line x1="3" y1="14" x2="17" y2="14" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile nav overlay */}
+      {mobileNavOpen && (
+        <div className="mobile-nav-overlay" onClick={() => setMobileNavOpen(false)}>
+          <aside className="mobile-sidebar" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-6)", paddingBottom: "var(--space-5)", borderBottom: "1px solid var(--border-subtle)" }}>
+              <div className="sidebar-logo" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>Almanac</div>
+            </div>
+            <nav className="sidebar-nav">
+              <span className="sidebar-section-label">Today</span>
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`sidebar-nav-item${pathname === item.href ? " active" : ""}`}
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {item.icon}
+                  {item.label}
+                </a>
+              ))}
+              <span className="sidebar-section-label" style={{ marginTop: "24px" }}>Settings</span>
+              <a
+                href="#"
+                className="sidebar-nav-item"
+                onClick={(e) => { e.preventDefault(); setMobileNavOpen(false); setShowLinkedInModal(true); }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                LinkedIn {linkedInStatus?.logged_in ? `(${linkedInStatus.username})` : "— not connected"}
+              </a>
+              <a
+                href="#"
+                className="sidebar-nav-item"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileNavOpen(false);
+                  document.cookie = "token=; path=/; max-age=0";
+                  router.push("/login");
+                }}
+              >
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M6 2l3 3 5-5M13 11v3a1 1 0 01-1 1H4a1 1 0 01-1-1V5" />
+                </svg>
+                Sign out
+              </a>
+            </nav>
+          </aside>
+        </div>
+      )}
+
       <aside className="sidebar">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-8)", paddingBottom: "var(--space-6)", borderBottom: "1px solid var(--border-subtle)" }}>
           <div className="sidebar-logo" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>Almanac</div>

@@ -1565,10 +1565,125 @@ body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
 /* --- RESPONSIVE --- */
 @media (max-width: 900px) {
   .detail-grid { grid-template-columns: 1fr; }
-  .stats-row { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .prospect-detail-header { margin-bottom: var(--space-5); }
+  .detail-name { font-size: 1.75rem; }
+}
+
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .page-header { margin-bottom: var(--space-5); }
+  .page-greeting { font-size: 1.5rem; }
+  .topbar { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .topbar-actions { flex-wrap: wrap; }
+  .tier-tabs { overflow-x: auto; white-space: nowrap; }
+  .prospect-card-top { flex-direction: column; gap: var(--space-2); }
+  .prospect-score { alignSelf: "flex-start"; }
+  .detail-section { padding: var(--space-4); }
+  .draft-actions { flexDirection: "column"; }
+  .signal-sections-grid { grid-template-columns: 1fr !important; }
+  .detail-header-row { flex-direction: column; }
+  .detail-header-row { flex-direction: column; }
+  .detail-page-header { margin-bottom: var(--space-5) !important; }
 }
 
 @media (max-width: 640px) {
   .sidebar { display: none; }
-  .main-content { margin-left: 0; padding: var(--space-5); }
+  .main-content { margin-left: 0; padding: var(--space-4); }
+
+  /* Mobile header */
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-raised);
+    border-bottom: 1px solid var(--border-default);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+  .mobile-header-logo {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #F59E0B 0%, #FFB800 40%, #FCD34D 60%, #F59E0B 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--surface-inset);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--ink-primary);
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .mobile-menu-btn:hover { background: var(--surface-elevated); }
+
+  /* Mobile nav overlay */
+  .mobile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 300;
+    backdrop-filter: blur(4px);
+  }
+  .mobile-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    background: var(--surface-raised);
+    padding: var(--space-5);
+    overflow-y: auto;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Landing page mobile */
+  .landing-nav { padding: 1.25rem 1.5rem; }
+  .landing-nav-links { display: none; }
+  .landing-logo { font-size: 1.5rem; }
+  .landing-title { font-size: clamp(3.5rem, 20vw, 6.5rem) !important; -webkit-text-fill-color: initial; color: #F59E0B; }
+  .landing-hero-content { padding: 0 1.25rem; padding-top: 6vh; }
+  .landing-eyebrow { font-size: 0.8rem; letter-spacing: 0.15em; }
+  .landing-desc { font-size: 0.95rem; line-height: 1.7; }
+  .landing-btn-primary, .landing-btn-ghost { padding: 1rem 2.5rem; font-size: 1rem; }
+  .landing-scroll { display: none; }
+  .landing-stats { padding: 2rem 1rem; gap: 1.5rem; }
+  .stats-item { padding: 0 1rem; }
+  .stats-num { font-size: 2rem; }
+  .stats-divider { display: none; }
+  .landing-tracks, .landing-sources { padding: 4rem 1.25rem; }
+  .sources-grid { grid-template-columns: 1fr; }
+  .source-card { padding: 1.25rem; gap: 1rem; }
+  .landing-cta-footer { padding: 5rem 1.25rem; }
+  .cta-footer-title { font-size: clamp(2.5rem, 10vw, 4rem); }
+  .cta-footer-sub { font-size: 1rem; }
+  .landing-cta-row { gap: 1rem; }
+  .landing-page-footer { padding: 2rem 1.25rem; }
+
+  /* Prospect detail mobile */
+  .stats-row { grid-template-columns: 1fr; gap: var(--space-3); }
+  .detail-grid { gap: var(--space-4); }
+
+  /* Alerts page mobile */
+  .alert-card-inner { padding: var(--space-3); }
+}
+
+/* Default: mobile header hidden on desktop */
+.mobile-header { display: none; }
+.mobile-nav-overlay { display: none; }
+@media (max-width: 640px) {
+  .mobile-header { display: flex; }
+  .mobile-nav-overlay { display: block; }
 }

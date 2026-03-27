@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Almanac — Prospect Intelligence",
   description: "Know exactly who to call and when.",
+  viewport: { width: "device-width", initialScale: 1 },
 };
 
 export default function RootLayout({

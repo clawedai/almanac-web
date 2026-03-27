@@ -153,7 +153,7 @@ export default function ProspectDetailPage() {
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto" }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
+      <div className="detail-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
         <div>
           <button onClick={() => router.push("/prospects")} style={{
             background: "none", border: "none", cursor: "pointer",
@@ -240,7 +240,7 @@ export default function ProspectDetailPage() {
       </div>
 
       {/* Signal sections */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
+      <div className="signal-sections-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
         {/* Funding / Hiring */}
         <div className="prospect-card">
           <h2 style={{ fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-tertiary)", marginBottom: "12px" }}>
