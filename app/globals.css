@@ -6,7 +6,7 @@
   color: #F0F0F0;
   min-height: 100vh;
   overflow-x: hidden;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.6;
 }
 .landing-hero {
@@ -102,7 +102,7 @@
 }
 .landing-title {
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: clamp(6.5rem, 22vw, 15rem);
+  font-size: clamp(4rem, 14vw, 15rem);
   font-weight: 900;
   line-height: 0.88;
   letter-spacing: -0.01em;
@@ -1649,28 +1649,30 @@ body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
   }
 
-  /* Landing page mobile */
-  .landing-nav { padding: 1.25rem 1.5rem; }
+  /* Landing page mobile — tightened for phones */
+  .landing-root { font-size: 14px; }
+  .landing-nav { padding: 1rem 1.25rem; }
   .landing-nav-links { display: none; }
-  .landing-logo { font-size: 1.5rem; }
-  .landing-title { font-size: clamp(3.5rem, 20vw, 6.5rem) !important; -webkit-text-fill-color: initial; color: #F59E0B; }
-  .landing-hero-content { padding: 0 1.25rem; padding-top: 6vh; }
-  .landing-eyebrow { font-size: 0.8rem; letter-spacing: 0.15em; }
-  .landing-desc { font-size: 0.95rem; line-height: 1.7; }
-  .landing-btn-primary, .landing-btn-ghost { padding: 1rem 2.5rem; font-size: 1rem; }
+  .landing-logo { font-size: 1.25rem; }
+  .landing-hero-content { padding: 0 1.25rem; padding-top: 5vh; }
+  .landing-eyebrow { font-size: 0.7rem; letter-spacing: 0.12em; }
+  .landing-title { font-size: clamp(2.2rem, 11vw, 4rem) !important; -webkit-text-fill-color: initial; color: #F59E0B; }
+  .landing-sub { font-size: clamp(1.1rem, 4vw, 2rem); margin-bottom: 1rem; }
+  .landing-desc { font-size: 0.85rem; line-height: 1.6; max-width: 100%; }
+  .landing-btn-primary, .landing-btn-ghost { padding: 0.85rem 2rem; font-size: 0.9rem; }
   .landing-scroll { display: none; }
-  .landing-stats { padding: 2rem 1rem; gap: 1.5rem; }
-  .stats-item { padding: 0 1rem; }
-  .stats-num { font-size: 2rem; }
+  .landing-stats { padding: 1.5rem 0.75rem; gap: 1rem; }
+  .stats-item { padding: 0 0.75rem; }
+  .stats-num { font-size: 1.5rem; }
   .stats-divider { display: none; }
-  .landing-tracks, .landing-sources { padding: 4rem 1.25rem; }
+  .landing-tracks, .landing-sources { padding: 3rem 1rem; }
   .sources-grid { grid-template-columns: 1fr; }
-  .source-card { padding: 1.25rem; gap: 1rem; }
-  .landing-cta-footer { padding: 5rem 1.25rem; }
-  .cta-footer-title { font-size: clamp(2.5rem, 10vw, 4rem); }
-  .cta-footer-sub { font-size: 1rem; }
-  .landing-cta-row { gap: 1rem; }
-  .landing-page-footer { padding: 2rem 1.25rem; }
+  .source-card { padding: 1rem; gap: 0.75rem; }
+  .landing-cta-footer { padding: 4rem 1rem; }
+  .cta-footer-title { font-size: clamp(2rem, 8vw, 4rem); }
+  .cta-footer-sub { font-size: 0.9rem; }
+  .landing-cta-row { gap: 0.75rem; }
+  .landing-page-footer { padding: 1.5rem 1rem; }
 
   /* Prospect detail mobile */
   .stats-row { grid-template-columns: 1fr; gap: var(--space-3); }
