@@ -2,22 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface Prospect {
-  id: string;
-  first_name: string;
-  full_name: string;
-  company: string;
-  title: string;
-  intent_score: {
-    score: number;
-    tier: string;
-    score_breakdown: Record<string, number>;
-  };
-  score_description: string;
-  pain_points: Array<{ pain_description: string; sentiment: string }>;
-  draft_email?: { first_line: string; subject_line: string };
-}
+import { getToken } from "../../../lib/api";
+import type { Prospect } from "../../../lib/types";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -51,7 +37,7 @@ export default function BriefPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const token = document.cookie.match(/token=([^;]+)/)?.[1];
+      const token = getToken();
       if (!token) { router.push("/login"); return; }
 
       try {
@@ -62,7 +48,8 @@ export default function BriefPage() {
         });
 
         if (res.ok) {
-          const all = Array.isArray(await res.json()) ? await res.json() : [];
+          const data = await res.json();
+          const all = Array.isArray(data) ? data : [];
           setHot(all.filter((p: any) => p.intent_score?.tier === "hot"));
           setWarm(all.filter((p: any) => p.intent_score?.tier === "warm"));
         } else {
@@ -180,7 +167,7 @@ export default function BriefPage() {
                     <span className="prospect-score-num" style={{ color: "var(--hot)" }}>
                       {prospect.intent_score?.score || 0}
                     </span>
-                    <span className="proscent-score-label">/100</span>
+                    <span className="prospect-score-label">/100</span>
                   </div>
                 </div>
 

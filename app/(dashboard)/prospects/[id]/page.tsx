@@ -2,38 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-
-interface IntentScore {
-  score: number;
-  tier: string;
-  score_breakdown: Record<string, number>;
-}
-
-interface Prospect {
-  id: string;
-  full_name: string;
-  first_name: string;
-  company: string;
-  title: string;
-  email: string;
-  phone: string;
-  linkedin_url: string;
-  company_domain: string;
-  notes: string;
-  prospect_type: string;
-  intent_score: IntentScore | null;
-  created_at: string;
-  last_enriched_at: string | null;
-  signals?: {
-    intent_scores?: IntentScore | null;
-    linkedin_posts?: any[];
-    pain_points?: any[];
-    funding_signals?: any[];
-    technographics?: any[];
-    review_signals?: any[];
-    draft_emails?: any[];
-  };
-}
+import { getToken } from "../../../../lib/api";
+import type { Prospect } from "../../../../lib/types";
+import MetaAdSignalsCard from "../../../../components/MetaAdSignalsCard";
+import GoogleAdsSignalsCard from "../../../../components/GoogleAdsSignalsCard";
+import RedditSignalsCard from "../../../../components/RedditSignalsCard";
+import InstagramSignalsCard from "../../../../components/InstagramSignalsCard";
 
 function ScoreBar({ score, tier }: { score: number; tier: string }) {
   const filled = Math.round(score / 10);
@@ -92,9 +66,10 @@ export default function ProspectDetailPage() {
   const [scrapeError, setScrapeError] = useState("");
   const [scrapeSuccess, setScrapeSuccess] = useState("");
   const [generatingDraft, setGeneratingDraft] = useState(false);
+  const [instagramHandle, setInstagramHandle] = useState("");
 
   useEffect(() => {
-    const token = document.cookie.match(/token=([^;]+)/)?.[1];
+    const token = getToken();
     if (!token) { router.push("/login"); return; }
 
     setLoading(true);
@@ -112,7 +87,7 @@ export default function ProspectDetailPage() {
       setScrapeError("Add a LinkedIn URL or company website first.");
       return;
     }
-    const token = document.cookie.match(/token=([^;]+)/)?.[1];
+    const token = getToken();
     if (!token) return;
 
     setScraping(true);
@@ -203,6 +178,12 @@ export default function ProspectDetailPage() {
               <a href={prospect.linkedin_url} target="_blank" rel="noopener noreferrer"
                 style={{ fontSize: "0.8rem", color: "var(--accent)" }}>
                 LinkedIn ↗
+              </a>
+            )}
+            {instagramHandle && (
+              <a href={`https://www.instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: "0.8rem", color: "#E1306C" }}>
+                Instagram ↗
               </a>
             )}
           </div>
@@ -353,6 +334,75 @@ export default function ProspectDetailPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Meta / Facebook Ads */}
+      <MetaAdSignalsCard
+        companyDomain={prospect.company_domain}
+        companyName={prospect.company || ""}
+      />
+
+      {/* Google Ads */}
+      <GoogleAdsSignalsCard
+        companyDomain={prospect.company_domain}
+        companyName={prospect.company || ""}
+      />
+
+      {/* Reddit Signals */}
+      <RedditSignalsCard
+        companyDomain={prospect.company_domain}
+        companyName={prospect.company || ""}
+      />
+
+      {/* Instagram Organic */}
+      <div className="prospect-card" style={{ marginBottom: "20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <defs>
+              <linearGradient id="ig-g" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#833AB4" />
+                <stop offset="50%" stopColor="#E1306C" />
+                <stop offset="100%" stopColor="#F77737" />
+              </linearGradient>
+            </defs>
+            <rect x="1" y="1" width="14" height="14" rx="4" stroke="url(#ig-g)" strokeWidth="1.5" fill="none" />
+            <circle cx="8" cy="8" r="3" stroke="url(#ig-g)" strokeWidth="1.5" fill="none" />
+            <circle cx="11.5" cy="4.5" r="0.75" fill="url(#ig-g)" />
+          </svg>
+          <h2 style={{ fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8A837C", margin: 0 }}>
+            Instagram Organic
+          </h2>
+        </div>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <input
+            type="text"
+            placeholder="@handle (e.g. salesforce, hubspot)"
+            value={instagramHandle}
+            onChange={(e) => setInstagramHandle(e.target.value.replace("@", ""))}
+            style={{
+              flex: 1,
+              padding: "6px 12px",
+              border: "1px solid rgba(90,76,60,0.2)",
+              borderRadius: "8px",
+              fontSize: "0.82rem",
+              background: "#FAF8F5",
+              color: "#1A1714",
+              outline: "none",
+            }}
+          />
+        </div>
+        {!instagramHandle && (
+          <p style={{ fontSize: "0.82rem", color: "#B5AEA4", margin: "4px 0 0" }}>
+            Enter an Instagram handle to scan their profile for organic social signals.
+          </p>
+        )}
+      </div>
+      {instagramHandle && (
+        <InstagramSignalsCard
+          instagramHandle={instagramHandle}
+          prospectId={prospect.id}
+          companyName={prospect.company || ""}
+        />
       )}
 
       {/* Actions */}

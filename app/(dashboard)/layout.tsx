@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import LinkedInLoginModal from "../../components/LinkedInLoginModal";
+import AlertNotificationBell from "../../components/AlertNotificationBell";
+import { getToken } from "../../lib/api";
+import type { LinkedInStatus } from "../../lib/types";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [checking, setChecking] = useState(true);
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
-  const [linkedInStatus, setLinkedInStatus] = useState<{ logged_in: boolean; username?: string } | null>(null);
+  const [linkedInStatus, setLinkedInStatus] = useState<LinkedInStatus | null>(null);
 
   useEffect(() => {
-    const token = document.cookie.match(/token=([^;]+)/)?.[1];
+    const token = getToken();
     if (!token) {
       router.push("/login");
     } else {
@@ -25,15 +28,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         .then((r) => r.ok ? r.json() : { logged_in: false })
         .then((d) => setLinkedInStatus(d))
         .catch(() => setLinkedInStatus({ logged_in: false }));
-    }
-  }, [router]);
-
-  useEffect(() => {
-    const token = document.cookie.match(/token=([^;]+)/)?.[1];
-    if (!token) {
-      router.push("/login");
-    } else {
-      setChecking(false);
     }
   }, [router]);
 
@@ -77,7 +71,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="dashboard-shell">
       <aside className="sidebar">
-        <div className="sidebar-logo">Almanac</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-8)", paddingBottom: "var(--space-6)", borderBottom: "1px solid var(--border-subtle)" }}>
+          <div className="sidebar-logo" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>Almanac</div>
+          <AlertNotificationBell />
+        </div>
 
         <nav className="sidebar-nav">
           <span className="sidebar-section-label">Today</span>

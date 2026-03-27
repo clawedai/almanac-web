@@ -2,28 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface IntentScore {
-  score: number;
-  tier: string;
-  score_breakdown: Record<string, number>;
-}
-
-interface Prospect {
-  id: string;
-  full_name: string;
-  first_name: string;
-  company: string;
-  title: string;
-  email: string;
-  phone: string;
-  linkedin_url: string;
-  company_domain: string;
-  prospect_type: string;
-  notes: string;
-  intent_score: IntentScore | null;
-  created_at: string;
-}
+import { getToken } from "../../../lib/api";
+import type { Prospect } from "../../../lib/types";
+import BulkImportModal from "../../../components/BulkImportModal";
 
 type TabFilter = "all" | "hot" | "warm" | "cold";
 
@@ -65,11 +46,14 @@ export default function ProspectsPage() {
     notes: "",
     linkedin_url: "",
     company_domain: "",
+    instagram_handle: "",
+    twitter_handle: "",
   });
   const [addLoading, setAddLoading] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   useEffect(() => {
-    const token = document.cookie.match(/token=([^;]+)/)?.[1];
+    const token = getToken();
     if (!token) { router.push("/login"); return; }
 
     setLoading(true);
@@ -89,7 +73,7 @@ export default function ProspectsPage() {
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    const token = document.cookie.match(/token=([^;]+)/)?.[1];
+    const token = getToken();
     if (!token) return;
 
     setAddLoading(true);
@@ -109,6 +93,8 @@ export default function ProspectsPage() {
       phone: form.phone || null,
       linkedin_url: form.linkedin_url || null,
       company_domain: form.company_domain || null,
+      instagram_handle: form.instagram_handle ? form.instagram_handle.replace(/^@/, "") : null,
+      twitter_handle: form.twitter_handle ? form.twitter_handle.replace(/^@/, "") : null,
       notes: form.notes || null,
       source: "manual",
     };
@@ -131,7 +117,7 @@ export default function ProspectsPage() {
         });
         if (refresh.ok) setProspects(await refresh.json());
 
-        setForm({ full_name: "", company: "", title: "", email: "", phone: "", notes: "", linkedin_url: "", company_domain: "" });
+        setForm({ full_name: "", company: "", title: "", email: "", phone: "", notes: "", linkedin_url: "", company_domain: "", instagram_handle: "", twitter_handle: "" });
         setShowAdd(false);
         setAddSuccess("Added to pipeline!");
         setTimeout(() => setAddSuccess(""), 3000);
@@ -162,14 +148,22 @@ export default function ProspectsPage() {
     counts[t] = prospects.filter((p) => p.intent_score?.tier === t).length;
   }
 
-  const isTracking = (p: Prospect) => p.linkedin_url || p.company_domain;
-  const formHasTracking = () => form.linkedin_url.trim() || form.company_domain.trim();
+  const isTracking = (p: Prospect) =>
+    p.linkedin_url || p.company_domain || (p as any).instagram_handle || (p as any).twitter_handle;
+  const formHasTracking = () =>
+    form.linkedin_url.trim() || form.company_domain.trim() || form.instagram_handle.trim() || form.twitter_handle.trim();
 
   return (
     <div>
       {/* Header */}
       <div className="topbar">
         <h1 className="page-title">Pipeline</h1>
+        <button className="btn-secondary" onClick={() => setShowBulkImport(true)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Upload CSV
+        </button>
         <button className="btn-primary" onClick={() => setShowAdd(!showAdd)}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M7 1v12M1 7h12" />
@@ -249,7 +243,7 @@ export default function ProspectsPage() {
                   <label className="form-label">
                     LinkedIn URL
                     {form.linkedin_url && (
-                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "var(--accent)", fontWeight: 600 }}>Tracking active</span>
+                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "var(--accent)", fontWeight: 600 }}>LinkedIn active</span>
                     )}
                   </label>
                   <input className="form-input" placeholder="https://linkedin.com/in/sarahchen"
@@ -259,15 +253,43 @@ export default function ProspectsPage() {
                   <label className="form-label">
                     Company website
                     {form.company_domain && (
-                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "var(--accent)", fontWeight: 600 }}>Tracking active</span>
+                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "var(--accent)", fontWeight: 600 }}>Scanning ads</span>
                     )}
                   </label>
                   <input className="form-input" placeholder="techflow.io"
                     value={form.company_domain} onChange={(e) => setField("company_domain", e.target.value)} />
                 </div>
               </div>
-              <p style={{ fontSize: "0.78rem", color: "var(--ink-muted)", marginTop: "8px" }}>
-                When you provide a LinkedIn or company URL, we'll monitor for funding news, hiring activity, reviews, and social signals. Your pipeline will update automatically.
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px" }}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Instagram handle
+                    {form.instagram_handle && (
+                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "#E1306C", fontWeight: 600 }}>IG active</span>
+                    )}
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--ink-muted)", fontSize: "0.85rem" }}>@</span>
+                    <input className="form-input" placeholder="hubspot" style={{ paddingLeft: "24px" }}
+                      value={form.instagram_handle} onChange={(e) => setField("instagram_handle", e.target.value)} />
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">
+                    Twitter / X handle
+                    {form.twitter_handle && (
+                      <span style={{ marginLeft: "8px", fontSize: "0.7rem", color: "#1DA1F2", fontWeight: 600 }}>X active</span>
+                    )}
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--ink-muted)", fontSize: "0.85rem" }}>@</span>
+                    <input className="form-input" placeholder="hubspot" style={{ paddingLeft: "24px" }}
+                      value={form.twitter_handle} onChange={(e) => setField("twitter_handle", e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              <p style={{ fontSize: "0.78rem", color: "var(--ink-muted)", marginTop: "10px" }}>
+                Provide any profile URL or handle above to activate monitoring across LinkedIn, Instagram, Twitter, Meta Ads, Google Ads, and Reddit.
               </p>
             </div>
 
@@ -421,6 +443,20 @@ export default function ProspectsPage() {
                       LinkedIn
                     </a>
                   )}
+                  {prospect.instagram_handle && (
+                    <a href={`https://instagram.com/${prospect.instagram_handle.replace("@", "")}`} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: "0.78rem", color: "#E1306C", display: "flex", alignItems: "center", gap: "3px" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0h12zM12 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                      @{prospect.instagram_handle}
+                    </a>
+                  )}
+                  {prospect.twitter_handle && (
+                    <a href={`https://twitter.com/${prospect.twitter_handle.replace("@", "")}`} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: "0.78rem", color: "#1DA1F2", display: "flex", alignItems: "center", gap: "3px" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                      @{prospect.twitter_handle}
+                    </a>
+                  )}
                   {prospect.phone && (
                     <span style={{ fontSize: "0.78rem", color: "var(--ink-muted)" }}>{prospect.phone}</span>
                   )}
@@ -433,6 +469,24 @@ export default function ProspectsPage() {
           );
         })
       )}
+
+      <BulkImportModal
+        isOpen={showBulkImport}
+        onClose={() => setShowBulkImport(false)}
+        onSuccess={async (created) => {
+          if (created > 0) {
+            // Refresh list
+            const token = getToken();
+            if (token) {
+              const refresh = await fetch("/api/prospects", {
+                headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
+              });
+              if (refresh.ok) setProspects(await refresh.json());
+            }
+          }
+        }}
+      />
     </div>
   );
 }
