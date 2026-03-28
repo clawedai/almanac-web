@@ -269,6 +269,68 @@ export interface LinkedInStatus {
   is_valid?: boolean;
 }
 
+// ---------- ICP Types -----------------------------------------------
+
+export interface ICPStatus {
+  setup_complete: boolean;
+  completion_percentage: number;
+  sections_missing: string[];
+}
+
+export interface KeywordScores {
+  look: number;
+  pain: number;
+  action: number;
+  category: number;
+  recency_7: number;
+  recency_30: number;
+  frustrated: number;
+  negative: number;
+}
+
+export interface SignalDefinition {
+  id: string;
+  signal_type: string;
+  look_keywords: string[];
+  pain_keywords: string[];
+  action_keywords: string[];
+  category_keywords: string[];
+  keyword_scores: KeywordScores;
+  recency_days: number;
+  signal_weight: number;
+  max_contribution: number;
+  is_enabled: boolean;
+}
+
+export interface ICPProfile {
+  id: string;
+  user_id: string;
+  is_complete: boolean;
+  service_name: string;
+  service_category: string;
+  service_description?: string;
+  core_problem_solved?: string;
+  primary_deliverable?: string;
+  service_format?: string;
+  buyer_role?: string;
+  buyer_industry: string[];
+  buyer_company_size: string[];
+  buyer_revenue_range: string[];
+  buyer_location: string[];
+  problems_expressed: string[];
+  buying_urgency_signals: string[];
+  decision_maker?: string;
+  budget_range?: string;
+  competitor_names: string[];
+  service_keywords: string[];
+  signal_definitions: SignalDefinition[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type ServiceCategory = 'VIDEO' | 'DESIGN' | 'WEB' | 'SAAS' | 'MARKETING' | 'CONSULTING' | 'OTHER';
+export type ServiceFormat = 'FREELANCE' | 'AGENCY' | 'SaaS' | 'PRODUCT' | 'CONSULTING';
+
 // ---------- API Responses --------------------------------------------
 
 export interface ApiError {

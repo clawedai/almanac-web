@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_URL = process.env.API_URL || "http://localhost:9001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || "http://localhost:9001";
 
 function getToken(request: Request): string | null {
   // Try Authorization header first, then cookie

@@ -16,10 +16,12 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const tier = searchParams.get("tier");
+    const path = searchParams.get("path") || "";
+    const query = searchParams.toString().replace("path=" + (path ? encodeURIComponent(path) : "") + "&", "").replace("path=" + encodeURIComponent(path), "");
 
-    let url = `${API_URL}/api/v1/prospects`;
-    if (tier) url += `?tier=${tier}`;
+    let url = `${API_URL}/api/v1/icp`;
+    if (path) url += `/${path}`;
+    if (query) url += `?${query}`;
 
     const response = await fetch(url, {
       headers: {
@@ -30,7 +32,8 @@ export async function GET(request: Request) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: "Failed to fetch prospects" }, { status: response.status });
+      const err = await response.json().catch(() => ({}));
+      return NextResponse.json({ error: err.detail || "Failed to fetch ICP" }, { status: response.status });
     }
 
     const data = await response.json();
@@ -45,19 +48,54 @@ export async function POST(request: Request) {
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    const { searchParams } = new URL(request.url);
+    const path = searchParams.get("path") || "";
+
+    let url = `${API_URL}/api/v1/icp`;
+    if (path) url += `/${path}`;
+
     const body = await request.json();
-    const response = await fetch(`${API_URL}/api/v1/prospects`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      cache: "no-store",
     });
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      return NextResponse.json({ error: err.detail || "Failed to create prospect" }, { status: response.status });
+      return NextResponse.json({ error: err.detail || "Failed to save ICP" }, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  const token = getToken(request);
+  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    const body = await request.json();
+    const response = await fetch(`${API_URL}/api/v1/icp`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return NextResponse.json({ error: err.detail || "Failed to update ICP" }, { status: response.status });
     }
 
     const data = await response.json();

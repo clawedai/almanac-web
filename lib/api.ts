@@ -2,7 +2,11 @@
  * Shared API utilities — eliminates token extraction duplication across all pages.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9001";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9001";
+
+export function getApiUrl(): string {
+  return API_URL;
+}
 
 // ---------- token extraction -----------------------------------------
 
@@ -232,6 +236,88 @@ export async function markAllAlertsRead(): Promise<void> {
   if (!res.ok) {
     throw new Error("Failed to mark all alerts as read");
   }
+}
+
+// ---------- ICP -------------------------------------------------
+
+export async function getICPStatus(): Promise<import("./types").ICPStatus> {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/api/v1/icp/status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    return {
+      setup_complete: false,
+      completion_percentage: 0,
+      sections_missing: ["service", "customer", "triggers"],
+    };
+  }
+  return res.json();
+}
+
+export async function getICP(): Promise<import("./types").ICPProfile | null> {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/api/v1/icp`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function saveICP(
+  data: Partial<import("./types").ICPProfile>,
+): Promise<import("./types").ICPProfile> {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/api/v1/icp`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to save ICP");
+  return res.json();
+}
+
+export async function getSignalDefinitions(): Promise<import("./types").SignalDefinition[]> {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/api/v1/icp/signal-definitions`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function saveSignalDefinition(
+  data: import("./types").SignalDefinition,
+): Promise<void> {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/api/v1/icp/signal-definition`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to save signal definition");
+}
+
+export async function saveSignalDefinitionsBulk(
+  defs: import("./types").SignalDefinition[],
+): Promise<void> {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/api/v1/icp/signal-definitions/bulk`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(defs),
+  });
+  if (!res.ok) throw new Error("Failed to save signal definitions");
 }
 
 // ---------- convenience methods ---------------------------------------

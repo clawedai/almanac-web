@@ -1578,11 +1578,10 @@ body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
   .topbar-actions { flex-wrap: wrap; }
   .tier-tabs { overflow-x: auto; white-space: nowrap; }
   .prospect-card-top { flex-direction: column; gap: var(--space-2); }
-  .prospect-score { alignSelf: "flex-start"; }
+  .prospect-score { align-self: flex-start; }
   .detail-section { padding: var(--space-4); }
-  .draft-actions { flexDirection: "column"; }
+  .draft-actions { flex-direction: column; }
   .signal-sections-grid { grid-template-columns: 1fr !important; }
-  .detail-header-row { flex-direction: column; }
   .detail-header-row { flex-direction: column; }
   .detail-page-header { margin-bottom: var(--space-5) !important; }
 }
@@ -1677,6 +1676,10 @@ body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
   /* Prospect detail mobile */
   .stats-row { grid-template-columns: 1fr; gap: var(--space-3); }
   .detail-grid { gap: var(--space-4); }
+
+  /* Add-person form — single column on mobile */
+  .form-grid-3 { grid-template-columns: 1fr !important; }
+  .form-grid-2 { grid-template-columns: 1fr !important; }
 
   /* Alerts page mobile */
   .alert-card-inner { padding: var(--space-3); }

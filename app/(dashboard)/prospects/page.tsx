@@ -197,7 +197,7 @@ export default function ProspectsPage() {
               <p style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--ink-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "10px" }}>
                 Who is this?
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "12px" }} className="form-grid-3">
                 <div className="form-field" style={{ gridColumn: "1" }}>
                   <label className="form-label">Full name *</label>
                   <input className="form-input" placeholder="Sarah Chen"
@@ -214,7 +214,7 @@ export default function ProspectsPage() {
                     value={form.title} onChange={(e) => setField("title", e.target.value)} />
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }} className="form-grid-2">
                 <div className="form-field">
                   <label className="form-label">Email</label>
                   <input className="form-input" type="email" placeholder="sarah@techflow.io"
@@ -238,7 +238,7 @@ export default function ProspectsPage() {
                   Optional — provides URL to activate monitoring
                 </span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }} className="form-grid-2">
                 <div className="form-field">
                   <label className="form-label">
                     LinkedIn URL
@@ -260,7 +260,7 @@ export default function ProspectsPage() {
                     value={form.company_domain} onChange={(e) => setField("company_domain", e.target.value)} />
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px" }} className="form-grid-2">
                 <div className="form-field">
                   <label className="form-label">
                     Instagram handle
